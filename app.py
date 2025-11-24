@@ -1,7 +1,6 @@
 import yfinance as yf
-from flask import Flask,jsonify
+from flask import Flask,jsonify,request
 from flask_cors import CORS
-
 
 app=Flask('__name__')
 CORS(app)
@@ -31,7 +30,28 @@ def news():
     
     return jsonify(result)
 
+@app.route('/search',methods=['POST'])
+def search():
+    data=request.get_json()
+
+    symbol=data.get('symbol')
+
+    ns=yf.Ticker(symbol.upper()+'.NS')
+
+    res=[]
+
+    for e in range(5):
+
+        res.append({
+            'title':ns.news[e]['content']['title'],
+            'summary':ns.news[e]['content']['summary'],
+            'url':ns.news[e]['content']['canonicalUrl']['url']
+
+
+        })
+
+    return jsonify(res)
+
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
-
